@@ -8,7 +8,8 @@ class Lazors_Game:
         data_lines = self.file.split('\n')
         raw_data = [] #Store raw data
         #Check every line of the data
-        for line in data_lines: 
-             if '#' not in line and line != '':
-                 #Store useful raw data
-                 raw_data.append(line)
+        for line in data_lines:
+            if '#' not in line and line != '':
+                #Store useful raw data
+                raw_data.append(line)
+        pass
