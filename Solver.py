@@ -14,7 +14,7 @@ class Lazors_Game:
                 raw_data.append(line)
         pass
 
-Lazor (Mingyu)
+Laser (Mingyu)
 
 Block (Wilkins)
 
