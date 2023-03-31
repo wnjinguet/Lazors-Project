@@ -18,4 +18,16 @@ Laser (Mingyu)
 
 Block (Wilkins)
 
+class Block:
+ # This represents a block
+    def __init__(self, type):
+    # This iinitializes the class
+    
+    self.type = type
+   
+  def placable(self): 
+
+    
+
+
 Solver (Everyone) (find path, find fixed block, solver)
