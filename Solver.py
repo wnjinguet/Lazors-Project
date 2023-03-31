@@ -18,4 +18,4 @@ Laser (Mingyu)
 
 Block (Wilkins)
 
-Solver (Everyone)
+Solver (Everyone) (find path, find fixed block, solver)
