@@ -14,6 +14,8 @@ class Lazors_Game:
                 raw_data.append(line)
         pass
 
-Lazor
+Lazor (Mingyu)
 
 Block 
+
+Solver (Leandro)
