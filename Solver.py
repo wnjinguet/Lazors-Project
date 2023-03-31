@@ -13,4 +13,7 @@ class Lazors_Game:
                 #Store useful raw data
                 raw_data.append(line)
         pass
-Other.
+
+  Generathe grid
+  Generate the lazor
+    
