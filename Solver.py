@@ -16,6 +16,6 @@ class Lazors_Game:
 
 Lazor (Mingyu)
 
-Block 
+Block (Wilkins)
 
-Solver (Leandro)
+Solver (Everyone)
