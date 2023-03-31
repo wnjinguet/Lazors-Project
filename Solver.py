@@ -14,6 +14,6 @@ class Lazors_Game:
                 raw_data.append(line)
         pass
 
-  Generathe grid
-  Generate the lazor
-    
+Lazor
+
+Block 
