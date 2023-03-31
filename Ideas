@@ -1,3 +1,4 @@
+Converting the file to data:
 Leo:
 - Create different classes for the game,the board, the blocks, the laser
 - Some functions will be requeried: data converter(from file's raw data into usable data in python (lists))
@@ -6,3 +7,5 @@ Leo:
 - ONLY the solver function will be called at the end and do all the work, maybe something like: 
 solver(game, steps) where the game is the name of the file as a string and the steps is an int that tells you 
 how many steps to run (if it solves it before reaching the plugged value it stops and announces how many step it took)
+
+How to split the project. 
