@@ -12,7 +12,30 @@ class Lazors_Game:
             if '#' not in line and line != '':
                 #Store useful raw data
                 raw_data.append(line)
-        pass
+        
+        grid = [] #Raw grid data
+        #Extract grid from START to STOP
+        for index in range(len(raw_data)):
+            if raw_data[index] == "GRID START":
+                continue
+            elif raw_data[index] == "GRID STOP":
+                break
+            else:
+                #Puts all values in each grid together
+                grid.append(''.join(raw_data[index].split()))
+        
+        self.grid = [] #Corrected grid
+        #Separates each value in the raw grid data as a single element (nested list)
+        for index in grid:
+            temp_grid = []
+            for value in index:
+                temp_grid.append(value)
+                self.grid.append(temp_grid)
+        
+#Test
+a = Game('mad_4.bff')
+b = a.database()
+print(b)
 
 Laser (Mingyu)
 
