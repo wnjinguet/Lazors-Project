@@ -3,7 +3,8 @@ class Convert_Game_Data:
         #Read file
         self.file = open(filename, 'r').read()
     
-    def raw_data_converter(self):
+    #Isolate the data for the grid
+    def grid_data_converter(self):
         grid = [] #Raw grid data
         self.grid = [] #Corrected grid
         
@@ -41,11 +42,19 @@ class Convert_Game_Data:
             else:
                 raw_data.remove(raw_data[0])
                 break 
-        
-#Test
-a = Game('mad_4.bff')
-b = a.database()
-print(b)
+        return raw_data
+    
+    #Record the blocks that will be used in the game
+    def check_for_blocks(self):
+        blocks = {}
+        for row in raw_data:
+            #Need to extract raw_data first?
+        pass
+    
+####Test####
+#a = Game('mad_4.bff')
+#b = a.database()
+#print(b)
 
 class Game_Board:
     def __init__(self, grid, starting_point):
