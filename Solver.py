@@ -41,7 +41,8 @@ class Game_Board:
     def __init__(self, grid, starting_point):
         self.grid = grid
         self.starting_point = starting_point
-    
+        
+    #Available coordinates for the blocks
     def blocks_coord(self, grid):
         blocks_positions = []
         for y in range(len(grid)):
