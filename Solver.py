@@ -1,4 +1,4 @@
-class Lazors_Game:
+class Convert_Game_Data:
     def __init__(self, filename):
         #Read file
         self.file = open(filename, 'r').read()
@@ -36,6 +36,19 @@ class Lazors_Game:
 a = Game('mad_4.bff')
 b = a.database()
 print(b)
+
+class Game_Board:
+    def __init__(self, grid, starting_point):
+        self.grid = grid
+        self.starting_point = starting_point
+    
+    def blocks_coord(self, grid):
+        blocks_positions = []
+        for y in range(len(grid)):
+            for x in range(len(grid[0])):
+                if grid[y][x] == 'o':
+                    blocks_positions.append(tuple((x,y)))
+        return blocks_positions
 
 Laser (Mingyu)
 
