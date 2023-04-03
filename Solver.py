@@ -4,16 +4,19 @@ class Convert_Game_Data:
         self.file = open(filename, 'r').read()
     
     def raw_data_converter(self):
+        grid = [] #Raw grid data
+        self.grid = [] #Corrected grid
+        
         #Separate file's data into individual lines
         data_lines = self.file.split('\n')
         raw_data = [] #Store raw data
         #Check every line of the data
         for line in data_lines:
+            #To prevent the mad_1 file
             if '#' not in line and line != '':
                 #Store useful raw data
                 raw_data.append(line)
-        
-        grid = [] #Raw grid data
+               
         #Extract grid from START to STOP
         for index in range(len(raw_data)):
             if raw_data[index] == "GRID START":
@@ -24,13 +27,20 @@ class Convert_Game_Data:
                 #Puts all values in each grid together
                 grid.append(''.join(raw_data[index].split()))
         
-        self.grid = [] #Corrected grid
         #Separates each value in the raw grid data as a single element (nested list)
         for index in grid:
-            temp_grid = []
+            temp_grid = [] #Temporary storage
             for value in index:
                 temp_grid.append(value)
-                self.grid.append(temp_grid)
+                self.grid.append(temp_grid) #Nested list
+        
+        #Removes grid from raw data
+        for x in range(len(raw_data)):
+            if raw_data[0] != 'GRID STOP':
+                raw_data.remove(raw_data[0])
+            else:
+                raw_data.remove(raw_data[0])
+                break 
         
 #Test
 a = Game('mad_4.bff')
