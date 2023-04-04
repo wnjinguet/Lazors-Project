@@ -230,7 +230,7 @@ class Lazor(object):
                 direction = [direction_x, direction_y]
 
                 # Check if the lazor is inside the boundary
-                if self.check(coordination, direction):
+                if self.check_position(coordination, direction):
                     continue
                 else:
                     # Get the next coordination and direction of the lazor after a step
