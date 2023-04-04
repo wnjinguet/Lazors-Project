@@ -58,9 +58,9 @@ class Convert_Game_Data:
         pass
     
 ####Test for Class Convert_Game_Data:####
-#a = Game('mad_4.bff')
-#b = a.database()
-#print(b)
+a = Game('mad_4.bff')
+b = a.database()
+print(b)
 
 class Game_Board:
     def __init__(self, grid, starting_point):
