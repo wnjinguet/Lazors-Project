@@ -35,6 +35,8 @@ class Convert_Game_Data:
                 temp_grid.append(value)
                 self.grid.append(temp_grid) #Nested list
         
+        print("self.grid:\n", self.grid) 
+        
         #Removes grid from raw data
         for x in range(len(raw_data)):
             if raw_data[0] != 'GRID STOP':
@@ -42,16 +44,20 @@ class Convert_Game_Data:
             else:
                 raw_data.remove(raw_data[0])
                 break 
-        return raw_data
+        
+        print("Raw data without grid:\n", raw_data)
+        
+        #return raw_data
     
     #Record the blocks that will be used in the game
+    #WORK IN PROGRESS
     def check_for_blocks(self):
         blocks = {}
         for row in raw_data:
             #Need to extract raw_data first?
         pass
     
-####Test####
+####Test for Class Convert_Game_Data:####
 #a = Game('mad_4.bff')
 #b = a.database()
 #print(b)
