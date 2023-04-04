@@ -286,15 +286,101 @@ class Lazor(object):
 Block (Wilkins)
 
 class Block:
- # This represents a block
-    def __init__(self, type):
-    # This iinitializes the class
     
-    self.type = type
+    # This class representS a block
    
-  def placable(self): 
+    def __init__(self, type):
+       
+        # This is the class initializer
 
-    
+        # **Parameters**
 
+            # type: *str*
+                # the type of block
+       
+        self.type = type
+
+    def placable(self):
+        
+        # Return if the block can be placed something
+
+        # **Returns**
+
+            # flag: *bool*
+                # Indicate if the block can be placed something
+
+       
+        return self.type == "o"
+
+    def place(self, type):
+        
+        # Replace self's type with te type parameter
+
+        # **Parameters**
+
+            # type: *str*
+                # the type of block
+
+       
+        self.type = type
+
+    def react(self, lazor, dfs):
+        
+        # Call dfs to react what will happen according to the lazor and the block
+
+        # **Parameters**
+
+            # lazor: *Lazor class*
+                # The moving lazor
+            # dfs: *function*
+                # DFS function
+
+       
+        if self.type == "o" or self.type == "x":  # just go through
+            dfs(lazor.step())
+        elif self.type == "A":  # reflect
+            dfs(lazor.reflect())
+        elif self.type == "C":  # go through and reflect
+            dfs(lazor.step())
+            dfs(lazor.reflect())
 
 Solver (Everyone) (find path, find fixed block, solver)
+
+class Solver:
+    
+    # The class to solve a BFF puzzle
+
+    def __init__(self, bff: BFF):
+        
+        #The class initializer
+
+        # **Parameters**
+
+            # bff: *BFF class*
+                the bff
+
+   
+        self.bff = bff
+        # map to Block class
+        self.board = [[Block(t) for t in x] for x in bff.board]
+        # map to Lazor class
+        self.lazors = [Lazor(x, y, dx, dy) for x, y, dx, dy in bff.lazors]
+
+    def solve(self):
+       
+        # Return a solution or None
+
+        # **Returns**
+
+            # board: *(2-D list of str) or None*
+                # A solution or None
+
+      
+        blockMap = ["A", "B", "C"]
+
+        blocks = self.bff.blocks
+        board = self.board
+        h = len(board)
+        w = len(board[0])
+
+
