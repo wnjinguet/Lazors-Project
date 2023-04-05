@@ -356,35 +356,4 @@ def path_seek(grid, num_blocks_of_type_a, num_blocks_of_type_b, num_blocks_of_ty
                 continue
 
 
-def solver(fptr):
-    data = bff_convertor(fptr)
-    grid = data[0]
-    num_cols = data[1]
-    num_rows = data[2]
-    num_holes = data[3]
-    lazors = data[4]
-    holes = data[5]
-    small_grid = data[6]
 
-    # Find the positions of the occupied spots in the grid
-    occupied_spots = find_occupied_spots(small_grid)
-
-    # Solve the puzzle and find the path of the lazors
-    solution, lazor_path = path_seek(grid, num_cols, num_rows, num_holes, lazors, holes, occupied_spots)[:2]
-
-    # Create a new grid with the lazors and holes
-    new_grid = copy.deepcopy(small_grid)
-    lazor_index = 0
-    for row in range(len(new_grid)):
-        for col in range(len(new_grid[0])):
-            if new_grid[row][col] == 'o':
-                new_grid[row][col] = lazor_path[lazor_index]
-                lazor_index += 1
-
-    # Generate output image
-    image_output(solved_board=new_grid, answer_lazor=solution, lazor_info=lazors,
-                 holes=holes, filename=fptr)
-    output_filename = '.'.join(fptr.split('.')[0:-1])
-    print('Success! The puzzle has been solved and saved as {}'.format(
-        output_filename + '_solved.png'))
-    return new_grid, solution, lazor_path
