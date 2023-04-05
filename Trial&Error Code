@@ -37,31 +37,31 @@ def bff_convertor(file_name):
             temp_c = []
 
             # Get the number of available A-block
-            if content[i][j] == 'A' and (str.isalpha(content[i][j + 1]) is False):
+            if content[i][j] == 'A' and not str.isalpha(content[i][j + 1]):
                 for k in range(len(content[i])):
                     if str.isdigit(content[i][k]):
                         temp_a.append(content[i][k])
                         num_a_blocks = int(''.join(temp_a))
             # Get the number of available B-block
-            if content[i][j] == 'B' and (str.isalpha(content[i][j + 1]) is False):
+            if content[i][j] == 'B' and not str.isalpha(content[i][j + 1]):
                 for k in range(len(content[i])):
                     if str.isdigit(content[i][k]):
                         temp_b.append(content[i][k])
                         num_b_blocks = int(''.join(temp_b))
             # Get the number of available C-block
-            if content[i][j] == 'C' and (str.isalpha(content[i][j + 1]) is False):
+            if content[i][j] == 'C' and not str.isalpha(content[i][j + 1]):
                 for k in range(len(content[i])):
                     if str.isdigit(content[i][k]):
                         temp_c.append(content[i][k])
                         num_c_blocks = int(''.join(temp_c))
             # Get the positions of the start point and direction of lazor
-            if content[i][j] == 'L' and (str.isalpha(content[i][j + 1]) is False):
+            if content[i][j] == 'L' and not str.isalpha(content[i][j + 1]):
                 temp_l = lines[i].strip().split(' ')
                 temp_l.remove('L')
                 lazor_start.append([int(temp_l[0]), int(temp_l[1]),
                                     int(temp_l[2]), int(temp_l[3])])
             # Get the positions of the end points
-            if content[i][j] == 'P' and (str.isalpha(content[i][j - 1]) is False):
+            if content[i][j] == 'P' and not str.isalpha(content[i][j - 1]):
                 temp_p = lines[i].strip().split(' ')
                 temp_p.remove('P')
                 end_point_positions.append([int(temp_p[0]), int(temp_p[1])])
@@ -308,52 +308,3 @@ def find_occupied_spots(small_grid):
             if block in ['A', 'B', 'C']:
                 positions.append([i * 2 + 1, j * 2 + 1])
     return positions
-
-
-def obvious_skip(grid, possibles, lst, holes):
-    for i in range(len(holes)):
-        x = holes[i][1]
-        y = holes[i][0]
-        if ((grid[x][y + 1] in ['A', 'B']) and (grid[x][y - 1] in ['A', 'B'])) or \
-                ((grid[x + 1][y] in ['A', 'B']) and (grid[x - 1][y] in ['A', 'B'])):
-            return False
-        else:
-            return True
-
-
-def path_seek(grid, num_blocks_of_type_a, num_blocks_of_type_b, num_blocks_of_type_c, lazor_list, hole_list, position):
-    blocks = []
-    # Extract the blank positions and replace them with blocks
-    for row in grid:
-        for element in row:
-            if element == 'o':
-                blocks.append(element)
-    for i in range(num_blocks_of_type_a):
-        blocks[i] = 'A'
-    for i in range(num_blocks_of_type_a, (num_blocks_of_type_a + num_blocks_of_type_b)):
-        blocks[i] = 'B'
-    for i in range((num_blocks_of_type_a + num_blocks_of_type_b),
-                   (num_blocks_of_type_a + num_blocks_of_type_b + num_blocks_of_type_c)):
-        blocks[i] = 'C'
-    # Generate a list of permutations of blocks and blank positions
-    block_permutations = list(multiset_permutations(blocks))
-
-    while len(block_permutations) != 0:
-        blocks_temp = block_permutations[-1]
-        blocks_temp_save = copy.deepcopy(blocks_temp)
-        block_permutations.pop()
-        # Generate a board from the grid function
-        original_grid = Grid_part(grid)
-        test_board = original_grid.generate_grid(blocks_temp, position)
-        # Test the board with the obvious_skip function and run it through Lazor to see if it is the right board
-        if obvious_skip(test_board, block_permutations, blocks_temp, hole_list):
-            lazor = Lazor_part(test_board, lazor_list, hole_list)
-            solution = lazor.lazor_path()
-            # Return 0 if the board is wrong and return a list with the path of lazor if it's right
-            if solution != 0:
-                return solution, blocks_temp_save, test_board
-            else:
-                continue
-
-
-
