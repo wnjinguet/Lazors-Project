@@ -77,217 +77,226 @@ class Game_Board:
         return blocks_positions
 
 Laser (Mingyu)
-
-class Grid(object):
-    """
-    generate various grids.
-
-    Parameters:
-        original_grid (list): A list of lists that represents the original grid.
-
-    Attributes:
-        original_grid (list): The original grid.
-        length (int): The length of the original grid.
-        width (int): The width of the original grid.
-    """
+class Grid_part(object):
 
     def __init__(self, original_grid):
-        self.original_grid = original_grid
+        self.list_grid = None
         self.length = len(original_grid)
         self.width = len(original_grid[0])
+        self.original_grid = original_grid
 
-    def gen_grid(self, list_grid, position):
+    def generate_grid(self, list_grid, position):
 
-        # Make a copy of the list_grid so that we don't modify the original list
-        blocks = list(list_grid)
-
-        # Loop through each cell in the original grid
-        for row in range(self.length):
-            for column in range(self.width):
-                # Check if the cell is not part of the specified position
+        self.list_grid = list_grid
+        for row in range(len(self.original_grid)):
+            for column in range(len(self.original_grid[0])):
                 if [row, column] not in position:
-                    # Check if the cell is not already filled with a block
                     if self.original_grid[row][column] != 'x':
-                        # Place the next available block in the cell
-                        self.original_grid[row][column] = blocks.pop(0)
-                        # Stop the loop if all blocks have been placed
-                        if not blocks:
-                            return self.original_grid
-
-        # Return the updated grid
+                        self.original_grid[row][column] = list_grid.pop(0)
         return self.original_grid
 
 
-class Lazor(object):
-
-    # identify the correct grid and returning a lazor path.
+class Lazor_part(object):
 
     def __init__(self, grid, lazor_list, hole_list):
+        self.point = None
         self.grid = grid
         self.lazor_list = lazor_list
         self.hole_list = hole_list
 
     def block(self, block_type):
-        """
-        identify the function of different blocks.
-        **Parameters**
-            block_type: *str*
-                This represents different blocks:
-                'A': Reflect block
-                'B': Opaque block
-                'C': Refract block
-                'D': Crystal block
-                'o': Blank space
-                'x': Unavailable space
-        **Return**
-            new_direction: *list*
-                The new direction of the lazor.
-        """
+
+        self.type = block_type
         new_direction = []
-        if block_type == 'A':
-            if self.point[0] & 1 == 0:
+
+        # When the laser beam hits the reflect block
+        if self.type == 'A':
+            if self.point[0] % 2 == 0:
                 new_direction = [self.direction[0] * (-1), self.direction[1]]
             else:
                 new_direction = [self.direction[0], self.direction[1] * (-1)]
-        elif block_type == 'B':
-            pass
-        elif block_type == 'C':
-            if self.point[0] & 1 == 0:
+
+        # When the laser beam hits the opaque block
+        elif self.type == 'B':
+            new_direction = []
+
+        # When the laser beam hits the refract block
+        elif self.type == 'C':
+            if self.point[0] % 2 == 0:
                 new_direction = [self.direction[0], self.direction[1],
                                  self.direction[0] * (-1), self.direction[1]]
             else:
                 new_direction = [self.direction[0], self.direction[1],
                                  self.direction[0], self.direction[1] * (-1)]
-        elif block_type == 'D':
-            if self.point[0] & 1 == 0:
+
+        # When the laser beam hits the crystal block
+        elif self.type == 'D':
+            if self.point[0] % 2 == 0:
                 new_direction = [2, 0,
                                  self.direction[0], self.direction[1]]
             else:
                 new_direction = [0, 2,
                                  self.direction[0], self.direction[1]]
-        elif block_type in ('o', 'x'):
+
+        # When the laser beam hits the blank space or unavailable space
+        elif self.type == 'o' or self.type == 'x':
             new_direction = self.direction
 
         return new_direction
 
-    def meet_block(self, point, direction):
-
-        # check whether the lazor encounters a functional block and return the new direction of the lazor.
-        # Check if the point and direction are valid
-        if not isinstance(point, list) or len(point) != 2 or not isinstance(direction, list) or len(direction) != 2:
-            raise ValueError("Invalid input for point or direction")
-
-        # Calculate the next position of the laser
-        x1, y1 = point[0], point[1] + direction[1]
-        x2, y2 = point[0] + direction[0], point[1]
-
-        # Obtain the block the laser touches
-        if point[0] & 1 == 1:
-            # Check if y1 is within the grid bounds
-            if y1 < 0 or y1 >= len(self.grid):
-                raise ValueError("Invalid position for y1")
-            block_type = self.grid[y1][x1]
-            new_direction = self.block(block_type)
-        else:
-            # Check if x2 is within the grid bounds
-            if x2 < 0 or x2 >= len(self.grid[0]):
-                raise ValueError("Invalid position for x2")
-            block_type = self.grid[y2][x2]
-            new_direction = self.block(block_type)
-
-        return new_direction
-
     def check_position(self, lazor_coordinate, direction):
-        """
-        Check if the laser and its next step are inside the grid, if not,
-        return to the last step.
-        """
+
         width = len(self.grid[0])
         length = len(self.grid)
         x = lazor_coordinate[0]
         y = lazor_coordinate[1]
-
-        # Determine whether the position is in the grid.
+        # Determine whether the position is in the grid
         if x < 0 or x > (width - 1) or y < 0 or y > (length - 1) or \
-                (x + direction[0]) < 0 or (x + direction[0]) > (width - 1) or \
-                (y + direction[1]) < 0 or (y + direction[1]) > (length - 1):
+                (direction is None) or \
+                (x + direction[0]) < 0 or \
+                (x + direction[0]) > (width - 1) or \
+                (y + direction[1]) < 0 or \
+                (y + direction[1]) > (length - 1):
             return True
         else:
             return False
 
-    # simulate the path of a lazor beam as it passes through a grid of blocks, and initialize an empty result
-    # list and a lazor list, which contains a nested list with a lazor starting coordinates and direction for each
-    # lazor in self.lazor_list.
     def lazor_path(self):
 
-        # Initialize empty result list and lazor list
         result = []
-        lazor_list = [[l] for l in self.lazor_list]
+        lazor_list = []
 
-        # Maximum number of iterations to avoid infinite loop
-        max_iter = 30
+        for p in range(len(self.lazor_list)):
+            lazor_list.append([self.lazor_list[p]])
 
-        # Iterate through the lazor in the list
-        for n in range(max_iter):
-            for k, lazor in enumerate(lazor_list):
-                # Get the current coordination and direction of the lazor
-                coordination_x, coordination_y, direction_x, direction_y = lazor[-1]
+        for n in range(50):
+
+            for k in range(len(lazor_list)):
+                coordination_x, coordination_y, direction_x, direction_y = lazor_list[k][-1]
                 coordination = [coordination_x, coordination_y]
                 direction = [direction_x, direction_y]
 
-                # Check if the lazor is inside the boundary
                 if self.check_position(coordination, direction):
                     continue
                 else:
-                    # Get the next coordination and direction of the lazor after a step
-                    next_step = self.meet_block(coordination, direction)
 
-                    # If there are no elements in the list, it indicates it is block B
+                    next_step = self.block_reflect(coordination, direction)
+
                     if not next_step:
-                        lazor.append([coordination[0], coordination[1], 0, 0])
-                        if coordination in self.hole_list and coordination not in result:
+                        lazor_list[k].append([coordination[0], coordination[1], 0, 0])
+                        if (coordination in self.hole_list) and (coordination not in result):
                             result.append(coordination)
 
-                    # If there are 2 elements, it is "o" or A block
                     elif len(next_step) == 2:
                         direction = next_step
                         coordination = [coordination[0] + direction[0], coordination[1] + direction[1]]
-                        lazor.append([coordination[0], coordination[1], direction[0], direction[1]])
-                        if coordination in self.hole_list and coordination not in result:
+                        lazor_list[k].append([coordination[0], coordination[1], direction[0], direction[1]])
+                        if (coordination in self.hole_list) and (coordination not in result):
                             result.append(coordination)
 
-                    # If there are 4 elements, it is C block or D block
                     elif len(next_step) == 4:
-                        # If the first two elements in next_step have the same x-coordinate, it's a straight line
-                        if next_step[0] == next_step[2]:
+                        if next_step[0] == 0 or next_step[0] == 2:
                             direction = next_step
                             coordination = [coordination[0] + direction[0], coordination[1] + direction[1]]
-                            lazor.append([coordination[0], coordination[1], direction[2], direction[3]])
-                            if coordination in self.hole_list and coordination not in result:
+                            lazor_list[k].append([coordination[0], coordination[1], direction[2], direction[3]])
+                            if (coordination in self.hole_list) and (coordination not in result):
                                 result.append(coordination)
                         else:
                             direction = next_step
                             coordination_new_lazor1 = [coordination[0] + direction[0], coordination[1] + direction[1]]
                             coordination_new_lazor2 = [coordination[0], coordination[1]]
-                            new_lazor = [
+
+                            # Create a new lazor list and add the straight line to it
+                            new_lazor_list = [
                                 [coordination_new_lazor1[0], coordination_new_lazor1[1], direction[0], direction[1]]]
-                            lazor_list.append(new_lazor)
-                            lazor.append(
+                            lazor_list.append(new_lazor_list)
+
+                            # Add the other part to the list under the original lazor
+                            lazor_list[k].append(
                                 [coordination_new_lazor2[0], coordination_new_lazor2[1], direction[2], direction[3]])
                             coordination = coordination_new_lazor2
-                            if coordination in self.hole_list and coordination not in result:
+                            if (coordination in self.hole_list) and (coordination not in result):
                                 result.append(coordination)
-
-                    # If next_step has other lengths, something is wrong
                     else:
-                        print('Wrong')
+                        print('Wrong solution!')
+        if len(result) == len(self.hole_list):
+            return lazor_list
+        else:
+            return 0
 
-            # Check if all holes have been reached
-            if len(result) == len(self.hole_list):
-                return lazor_list
+    def block_reflect(self, point, direction):
+        self.point = point
+        self.direction = direction
 
-        # If not all holes have been reached after max_iter iterations, return 0
-        return 0
+        x1, y1 = point[0], point[1] + direction[1]
+        x2, y2 = point[0] + direction[0], point[1]
+
+        if point[0] & 1 == 1:
+
+            block_type = self.grid[y1][x1]
+            new_direction = self.block(block_type)
+        else:
+
+            block_type = self.grid[y2][x2]
+            new_direction = self.block(block_type)
+
+        return new_direction
+
+
+def find_occupied_spots(small_grid):
+    positions = []
+    for i in range(len(small_grid)):
+        for j in range(len(small_grid[0])):
+            block = small_grid[i][j]
+            if block in ['A', 'B', 'C']:
+                positions.append([i * 2 + 1, j * 2 + 1])
+    return positions
+
+
+def obvious_skip(grid, possibles, lst, holes):
+    for i in range(len(holes)):
+        x = holes[i][1]
+        y = holes[i][0]
+        if ((grid[x][y + 1] in ['A', 'B']) and (grid[x][y - 1] in ['A', 'B'])) or \
+                ((grid[x + 1][y] in ['A', 'B']) and (grid[x - 1][y] in ['A', 'B'])):
+            return False
+        else:
+            return True
+
+
+def path_seek(grid, num_blocks_of_type_a, num_blocks_of_type_b, num_blocks_of_type_c, lazor_list, hole_list, position):
+    blocks = []
+    # Extract the blank positions and replace them with blocks
+    for row in grid:
+        for element in row:
+            if element == 'o':
+                blocks.append(element)
+    for i in range(num_blocks_of_type_a):
+        blocks[i] = 'A'
+    for i in range(num_blocks_of_type_a, (num_blocks_of_type_a + num_blocks_of_type_b)):
+        blocks[i] = 'B'
+    for i in range((num_blocks_of_type_a + num_blocks_of_type_b),
+                   (num_blocks_of_type_a + num_blocks_of_type_b + num_blocks_of_type_c)):
+        blocks[i] = 'C'
+    # Generate a list of permutations of blocks and blank positions
+    block_permutations = list(multiset_permutations(blocks))
+
+    while len(block_permutations) != 0:
+        blocks_temp = block_permutations[-1]
+        blocks_temp_save = copy.deepcopy(blocks_temp)
+        block_permutations.pop()
+        # Generate a board from the grid function
+        original_grid = Grid_part(grid)
+        test_board = original_grid.generate_grid(blocks_temp, position)
+        # Test the board with the obvious_skip function and run it through Lazor to see if it is the right board
+        if obvious_skip(test_board, block_permutations, blocks_temp, hole_list):
+            lazor = Lazor_part(test_board, lazor_list, hole_list)
+            solution = lazor.lazor_path()
+            # Return 0 if the board is wrong and return a list with the path of lazor if it's right
+            if solution != 0:
+                return solution, blocks_temp_save, test_board
+            else:
+                continue
 
 Block (Wilkins)
 
