@@ -308,3 +308,61 @@ def find_occupied_spots(small_grid):
             if block in ['A', 'B', 'C']:
                 positions.append([i * 2 + 1, j * 2 + 1])
     return positions
+
+############################################################
+import random
+
+#To check whether the coordinates are within the grid or not
+def pos_chk(x, y, num_Blocks):
+    return x >= 0 and x < num_Blocks and y >= 0 and y < num_Blocks
+
+#Place random blocks in the grid
+def grid_with_rand_blocks(coord, blocks, grid):
+
+	#coord: A list indicating the coordinates through which the blocks can be placed. 
+	#blocks: A dictionary of available block type and respective numbers
+	#grid: A nested list of strings containing the description of the game board
+	#Returns: grid: A nested list containing the game permutation with game blocks
+
+    options = random.sample(coord, sum(blocks.values()))
+    nA = blocks['A'], nB = blocks['B'],	nC = blocks['C']
+    
+    for element in options:
+        (x,y) = element
+        if nC != 0:
+            grid[y][x] = 'C'
+            nC -= 1
+        elif nA != 0:
+            grid[y][x] = 'A'
+            nA -= 1
+        elif nB != 0:
+            grid[y][x] = 'B'
+            nB -= 1
+        else:
+            print("No blocks left")
+    return grid
+    
+#Loads a nested list of strings derived from the grid, indicating all the positions 
+#of the blocks as well as the positions/points, through which the lazor can pass through.
+def solved_bff(positions):
+    print("Loading...")
+    solution = []
+    
+    #Create list of solutons
+    for x in range(1,len(positions), 2):
+        for y in range(1, len(positions[0]), 2):
+            solution.append(positions[x][y])
+
+    width = int((len(positions[0])-1) * 0.5)
+     
+    solution = [solution[n:n + width] for n in xrange(0, len(solution), width)]
+
+    file = open('solution.bff', 'w')
+
+    for index in solution:
+        for value in index:
+            file.write(value)
+            file.write('\t')
+        file.write('\n')
+    file.close()
+    print("A solution was found")
