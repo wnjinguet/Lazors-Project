@@ -1,5 +1,4 @@
-import copy
-import time
+import time 
 from PIL import ImageDraw, Image
 from sympy.utilities.iterables import multiset_permutations
 
