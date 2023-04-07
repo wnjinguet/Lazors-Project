@@ -309,60 +309,176 @@ def find_occupied_spots(small_grid):
                 positions.append([i * 2 + 1, j * 2 + 1])
     return positions
 
-############################################################
-import random
 
-#To check whether the coordinates are within the grid or not
-def pos_chk(x, y, num_Blocks):
-    return x >= 0 and x < num_Blocks and y >= 0 and y < num_Blocks
-
-#Place random blocks in the grid
-def grid_with_rand_blocks(coord, blocks, grid):
-
-	#coord: A list indicating the coordinates through which the blocks can be placed. 
-	#blocks: A dictionary of available block type and respective numbers
-	#grid: A nested list of strings containing the description of the game board
-	#Returns: grid: A nested list containing the game permutation with game blocks
-
-    options = random.sample(coord, sum(blocks.values()))
-    nA = blocks['A'], nB = blocks['B'],	nC = blocks['C']
-    
-    for element in options:
-        (x,y) = element
-        if nC != 0:
-            grid[y][x] = 'C'
-            nC -= 1
-        elif nA != 0:
-            grid[y][x] = 'A'
-            nA -= 1
-        elif nB != 0:
-            grid[y][x] = 'B'
-            nB -= 1
+def obvious_skip(grid, possibles, lst, holes):
+    for i in range(len(holes)):
+        x = holes[i][1]
+        y = holes[i][0]
+        if ((grid[x][y + 1] in ['A', 'B']) and (grid[x][y - 1] in ['A', 'B'])) or \
+                ((grid[x + 1][y] in ['A', 'B']) and (grid[x - 1][y] in ['A', 'B'])):
+            return False
         else:
-            print("No blocks left")
-    return grid
-    
-#Loads a nested list of strings derived from the grid, indicating all the positions 
-#of the blocks as well as the positions/points, through which the lazor can pass through.
-def solved_bff(positions):
-    print("Loading...")
-    solution = []
-    
-    #Create list of solutons
-    for x in range(1,len(positions), 2):
-        for y in range(1, len(positions[0]), 2):
-            solution.append(positions[x][y])
+            return True
 
-    width = int((len(positions[0])-1) * 0.5)
-     
-    solution = [solution[n:n + width] for n in xrange(0, len(solution), width)]
 
-    file = open('solution.bff', 'w')
+def path_seek(grid, num_blocks_of_type_a, num_blocks_of_type_b, num_blocks_of_type_c, lazor_list, hole_list, position):
+    blocks = []
+    # Extract the blank positions and replace them with blocks
+    for row in grid:
+        for element in row:
+            if element == 'o':
+                blocks.append(element)
+    for i in range(num_blocks_of_type_a):
+        blocks[i] = 'A'
+    for i in range(num_blocks_of_type_a, (num_blocks_of_type_a + num_blocks_of_type_b)):
+        blocks[i] = 'B'
+    for i in range((num_blocks_of_type_a + num_blocks_of_type_b),
+                   (num_blocks_of_type_a + num_blocks_of_type_b + num_blocks_of_type_c)):
+        blocks[i] = 'C'
+    # Generate a list of permutations of blocks and blank positions
+    block_permutations = list(multiset_permutations(blocks))
 
-    for index in solution:
-        for value in index:
-            file.write(value)
-            file.write('\t')
-        file.write('\n')
-    file.close()
-    print("A solution was found")
+    while len(block_permutations) != 0:
+        blocks_temp = block_permutations[-1]
+        blocks_temp_save = copy.deepcopy(blocks_temp)
+        block_permutations.pop()
+        # Generate a board from the grid function
+        original_grid = Grid_part(grid)
+        test_board = original_grid.generate_grid(blocks_temp, position)
+        # Test the board with the obvious_skip function and run it through Lazor to see if it is the right board
+        if obvious_skip(test_board, block_permutations, blocks_temp, hole_list):
+            lazor = Lazor_part(test_board, lazor_list, hole_list)
+            solution = lazor.lazor_path()
+            # Return 0 if the board is wrong and return a list with the path of lazor if it's right
+            if solution != 0:
+                return solution, blocks_temp_save, test_board
+            else:
+                continue
+
+
+def solver(fptr):
+    data = bff_convertor(fptr)
+    grid = data[0]
+    num_cols = data[1]
+    num_rows = data[2]
+    num_holes = data[3]
+    lazors = data[4]
+    holes = data[5]
+    small_grid = data[6]
+
+    # Find the positions of the occupied spots in the grid
+    occupied_spots = find_occupied_spots(small_grid)
+
+    # Solve the puzzle and find the path of the lazors
+    solution, lazor_path = path_seek(grid, num_cols, num_rows, num_holes, lazors, holes, occupied_spots)[:2]
+
+    # Create a new grid with the lazors and holes
+    new_grid = copy.deepcopy(small_grid)
+    lazor_index = 0
+    for row in range(len(new_grid)):
+        for col in range(len(new_grid[0])):
+            if new_grid[row][col] == 'o':
+                new_grid[row][col] = lazor_path[lazor_index]
+                lazor_index += 1
+
+    # Generate output image
+    image_output(solved_board=new_grid, answer_lazor=solution, lazor_info=lazors,
+                 holes=holes, filename=fptr)
+    output_filename = '.'.join(fptr.split('.')[0:-1])
+    print('Success! The puzzle has been solved and saved as {}'.format(
+        output_filename + '_solved.png'))
+    return new_grid, solution, lazor_path
+
+
+def solution_color():
+    return {
+        0: (200, 200, 200),
+        'A': (255, 255, 255),
+        'B': (50, 50, 50),
+        'C': (255, 0, 0),
+        'o': (150, 150, 150),
+        'x': (100, 100, 100),
+    }
+
+
+def image_output(solved_board, answer_lazor, lazor_info, holes, filename, block_size=50):
+    n_blocks_x = len(solved_board[0])
+    n_blocks_y = len(solved_board)
+    dim_x = n_blocks_x * block_size
+    dim_y = n_blocks_y * block_size
+    colors = solution_color()
+
+    # Verify that all values in the board are valid colors
+    error_message = "Error, invalid board value found!"
+    assert all([x in colors.keys()
+                for row in solved_board for x in row]), error_message
+
+    img = Image.new("RGB", (dim_x, dim_y), color=0)
+
+    # Parse "board" into pixels
+    for jy in range(n_blocks_y):
+        for jx in range(n_blocks_x):
+            x = jx * block_size
+            y = jy * block_size
+
+            for i in range(block_size):
+                for j in range(block_size):
+                    img.putpixel((x + i, y + j),
+                                 colors[solved_board[jy][jx]])
+
+    for i in range(n_blocks_y - 1):
+        y = (i + 1) * block_size
+        shape = [(0, y), (dim_x, y)]
+        img_new = ImageDraw.Draw(img)
+        img_new.line(shape, fill=0 in colors.keys(), width=5)
+
+    for i in range(n_blocks_x - 1):
+        x = (i + 1) * block_size
+        shape = [(x, 0), (x, dim_y)]
+        img_new = ImageDraw.Draw(img)
+        img_new.line(shape, fill=0 in colors.keys(), width=5)
+
+    for i in range(len(lazor_info)):
+        lazor_pos = (lazor_info[i][0], lazor_info[i][1])
+        img_new = ImageDraw.Draw(img)
+        img_new.ellipse([lazor_pos[0] * block_size / 2 - 10, lazor_pos[1] * block_size / 2 - 10,
+                         lazor_pos[0] * block_size / 2 + 10, lazor_pos[1] * block_size / 2 + 10], fill=(255, 0, 0))
+
+    for i in answer_lazor:
+        for point in range(len(i)):
+            co_start = (i[point][0] * block_size / 2,
+                        i[point][1] * block_size / 2)
+            if point + 1 < len(i):
+                co_end = (i[point + 1][0] * block_size / 2,
+                          i[point + 1][1] * block_size / 2)
+            else:
+                co_end = co_start
+            img_new = ImageDraw.Draw(img)
+            img_new.line([co_start, co_end], fill=(255, 0, 0), width=5)
+
+    for i in range(len(holes)):
+        img_new.ellipse([holes[i][0] * block_size / 2 - 10, holes[i][1] * block_size / 2 - 10,
+                         holes[i][0] * block_size / 2 + 10, holes[i][1] * block_size / 2 + 10], fill=(255, 255, 255),
+                        outline="red", width=2)
+
+    # Name the result image
+    if not filename.endswith(".png"):
+        filename = '.'.join(filename.split(".")[0:-1])
+        filename += "_solved.png"
+
+    img.save("%s" % filename)
+
+
+if __name__ == "__main__":
+    t0 = time.time()
+    solver('showstopper_4.bff')
+    solver('tiny_5.bff')
+    solver('mad_7.bff')
+    solver('dark_1.bff')
+    solver('mad_1.bff')
+    solver('mad_4.bff')
+    solver('numbered_6.bff')
+    t1 = time.time()
+    print(f'Solved in {t1 - t0:.2f} seconds')
+
+
