@@ -408,39 +408,43 @@ def image_output(solved_board, answer_lazor, lazor_info, holes, filename, block_
     dim_y = n_blocks_y * block_size
     colors = solution_color()
 
-    # Verify that all values in the board are valid colors
-    error_message = "Error, invalid board value found!"
-    assert all([x in colors.keys()
-                for row in solved_board for x in row]), error_message
+    # Define the set of valid colors
+    valid_colors = set(solution_color().keys())
 
-    img = Image.new("RGB", (dim_x, dim_y), color=0)
+    # Check if all the board values are valid colors
+    if not all(set(row).issubset(valid_colors) for row in solved_board):
+        raise ValueError("Invalid board value found!")
 
-    # Parse "board" into pixels
+    img = Image.new("RGB", (dim_x, dim_y), color=(0, 0, 0))
+
     for jy in range(n_blocks_y):
         for jx in range(n_blocks_x):
-            x = jx * block_size
-            y = jy * block_size
+            x = jx * block_size  # calculate x-coordinate of block
+            y = jy * block_size  # calculate y-coordinate of block
 
+            # loop through each pixel within the block
             for i in range(block_size):
                 for j in range(block_size):
-                    img.putpixel((x + i, y + j),
-                                 colors[solved_board[jy][jx]])
+                    # determine the color of the pixel based on the value in the solved board
+                    color = colors[solved_board[jy][jx]]
+
+                    # set the color of the pixel at (x+i, y+j) in the image
+                    img.putpixel((x + i, y + j), color)
+
+    img_new = ImageDraw.Draw(img)
 
     for i in range(n_blocks_y - 1):
         y = (i + 1) * block_size
         shape = [(0, y), (dim_x, y)]
-        img_new = ImageDraw.Draw(img)
-        img_new.line(shape, fill=0 in colors.keys(), width=5)
+        img_new.line(shape, fill=colors.get(0, 0), width=5)
 
     for i in range(n_blocks_x - 1):
         x = (i + 1) * block_size
         shape = [(x, 0), (x, dim_y)]
-        img_new = ImageDraw.Draw(img)
-        img_new.line(shape, fill=0 in colors.keys(), width=5)
+        img_new.line(shape, fill=colors.get(0, 0), width=5)
 
     for i in range(len(lazor_info)):
         lazor_pos = (lazor_info[i][0], lazor_info[i][1])
-        img_new = ImageDraw.Draw(img)
         img_new.ellipse([lazor_pos[0] * block_size / 2 - 10, lazor_pos[1] * block_size / 2 - 10,
                          lazor_pos[0] * block_size / 2 + 10, lazor_pos[1] * block_size / 2 + 10], fill=(255, 0, 0))
 
@@ -453,13 +457,13 @@ def image_output(solved_board, answer_lazor, lazor_info, holes, filename, block_
                           i[point + 1][1] * block_size / 2)
             else:
                 co_end = co_start
-            img_new = ImageDraw.Draw(img)
             img_new.line([co_start, co_end], fill=(255, 0, 0), width=5)
 
-    for i in range(len(holes)):
-        img_new.ellipse([holes[i][0] * block_size / 2 - 10, holes[i][1] * block_size / 2 - 10,
-                         holes[i][0] * block_size / 2 + 10, holes[i][1] * block_size / 2 + 10], fill=(255, 255, 255),
-                        outline="red", width=2)
+    for hole in holes:
+        x, y = hole[0] * block_size / 2, hole[1] * block_size / 2
+        coordinates = (x - 10, y - 10, x + 10, y + 10)
+        img_new = ImageDraw.Draw(img)
+        img_new.ellipse(coordinates, fill=(255, 255, 255), outline="red", width=2)
 
     # Name the result image
     if not filename.endswith(".png"):
