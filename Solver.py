@@ -297,12 +297,9 @@ def path_seek(grid, num_blocks_of_type_a, num_blocks_of_type_b, num_blocks_of_ty
                 return solution, blocks_temp_save, test_board
             else:
                 continue
-
-Block (Wilkins)
-
 class Block:
     
-    # This class representS a block
+    # This class represents a block
    
     def __init__(self, type):
        
@@ -358,9 +355,7 @@ class Block:
         elif self.type == "C":  # go through and reflect
             dfs(lazor.step())
             dfs(lazor.reflect())
-
-Solver (Everyone) (find path, find fixed block, solver)
-
+            
 class Solver:
     
     # The class to solve a BFF puzzle
