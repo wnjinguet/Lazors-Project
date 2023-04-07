@@ -55,7 +55,7 @@ class Convert_Game_Data:
         blocks = {}
         for row in raw_data:
             #Need to extract raw_data first?
-        pass
+            pass
     
 ####Test for Class Convert_Game_Data:####
 #a = Game('mad_4.bff')
