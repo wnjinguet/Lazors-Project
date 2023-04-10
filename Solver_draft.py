@@ -1,4 +1,4 @@
-##Leo:##
+##Leandro##
 class Convert_Game_Data:
     def __init__(self, filename):
         #Read file
@@ -76,8 +76,8 @@ class Game_Board:
                 if grid[y][x] == 'o':
                     blocks_positions.append(tuple((x,y)))
         return blocks_positions
-
-Laser (Mingyu)
+#####################################################################
+##Mingyu##
 class Grid_part(object):
 
     def __init__(self, original_grid):
@@ -298,6 +298,9 @@ def path_seek(grid, num_blocks_of_type_a, num_blocks_of_type_b, num_blocks_of_ty
                 return solution, blocks_temp_save, test_board
             else:
                 continue
+
+#####################################################################
+##Wilkins##
 class Block:
     
     # This class represents a block
@@ -356,7 +359,7 @@ class Block:
         elif self.type == "C":  # go through and reflect
             dfs(lazor.step())
             dfs(lazor.reflect())
-            
+
 class Solver:
     
     # The class to solve a BFF puzzle
