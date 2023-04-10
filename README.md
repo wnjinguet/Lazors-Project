@@ -1,6 +1,4 @@
-# Lazor-Project
-
-The goal of this program is to both read and solve the lazor game. 
+This lazor project is our attempt to both read and solve the lazor game. The lazor game has several boards, the goal of this project is to create a code that is able to read several boards and win the game. 
 
 To run the game, download all the board files (.bff) and Solver.py on your local directory.
 
